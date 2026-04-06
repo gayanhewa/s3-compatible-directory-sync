@@ -67,6 +67,16 @@ class TestCLI:
         assert result.exit_code == 0
         assert "doc.conflict" in result.output
 
+    def test_conflicts_clean(self, tmp_watch_dir):
+        (tmp_watch_dir / "a.conflict.mac-1.20240101.md").write_text("c1")
+        (tmp_watch_dir / "b.conflict.mac-2.20240101.md").write_text("c2")
+        runner = CliRunner()
+        result = runner.invoke(main, ["conflicts", "--clean", "--path", str(tmp_watch_dir)])
+        assert result.exit_code == 0
+        assert "Cleaned 2" in result.output
+        assert not (tmp_watch_dir / "a.conflict.mac-1.20240101.md").exists()
+        assert not (tmp_watch_dir / "b.conflict.mac-2.20240101.md").exists()
+
     def test_stop_no_daemon(self, tmp_watch_dir):
         Config.create(
             watch_path=str(tmp_watch_dir),

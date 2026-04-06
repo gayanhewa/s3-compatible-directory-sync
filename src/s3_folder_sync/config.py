@@ -21,6 +21,7 @@ DEFAULT_IGNORE_PATTERNS = [
     ".s3sync/**",
     "__pycache__/**",
     "*.pyc",
+    "*.conflict.*",
 ]
 
 

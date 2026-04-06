@@ -153,8 +153,9 @@ def sync_now(path: str) -> None:
 
 @main.command()
 @click.option("--path", default=".", help="Synced directory")
-def conflicts(path: str) -> None:
-    """List conflict files."""
+@click.option("--clean", is_flag=True, help="Remove all conflict files locally and from remote")
+def conflicts(path: str, clean: bool) -> None:
+    """List or clean conflict files."""
     watch_path = Path(path).resolve()
     conflict_files = []
 
@@ -162,16 +163,30 @@ def conflicts(path: str) -> None:
         if f.is_file():
             try:
                 relative = str(f.relative_to(watch_path))
-                conflict_files.append(relative)
+                conflict_files.append((relative, f))
             except ValueError:
                 pass
 
     if not conflict_files:
         click.echo("No conflict files found")
-    else:
+        return
+
+    if not clean:
         click.echo(f"Conflict files ({len(conflict_files)}):")
-        for cf in sorted(conflict_files):
+        for cf, _ in sorted(conflict_files):
             click.echo(f"  {cf}")
+        return
+
+    removed = 0
+    for relative, full_path in sorted(conflict_files):
+        try:
+            full_path.unlink()
+            click.echo(f"  Removed: {relative}")
+            removed += 1
+        except OSError as e:
+            click.echo(f"  Failed: {relative} ({e})", err=True)
+
+    click.echo(f"Cleaned {removed} conflict file(s)")
 
 
 @main.command()

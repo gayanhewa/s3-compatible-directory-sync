@@ -251,14 +251,11 @@ class SyncEngine:
         conflict_name = f"{stem}.conflict.{machine_id}.{ts}{suffix}"
         conflict_path = local_path.parent / conflict_name
 
-        # Save local version as conflict file
+        # Save local version as conflict file (local only, not synced)
         shutil.copy2(local_path, conflict_path)
 
         # Pull remote version as canonical
         self._do_pull(relative_path)
-
-        # Push the conflict file so the other machine sees it too
-        self._do_push(str(conflict_path.relative_to(self.watch_path)))
 
         logger.warning("Conflict: %s -> saved local as %s", relative_path, conflict_name)
         return str(conflict_path.relative_to(self.watch_path))
