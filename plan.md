@@ -6,7 +6,7 @@ A CLI tool that syncs a local folder to S3-compatible object storage, enabling t
 
 ## Language Choice
 
-**Go** — single static binary, no runtime dependencies, excellent concurrency primitives, strong stdlib for file I/O and HTTP, cross-compiles trivially for macOS (arm64/amd64).
+**Python 3.11+** — excellent S3 support (boto3), file watching (watchdog), CLI framework (click), and available on macOS by default. Installable via pip or pipx.
 
 ## Architecture
 
