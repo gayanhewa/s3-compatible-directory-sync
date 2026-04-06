@@ -18,6 +18,9 @@ dependencies = [
 s3-folder-sync = "s3_folder_sync.cli:main"
 
 [project.optional-dependencies]
+menubar = [
+    "rumps>=0.4",
+]
 dev = [
     "pytest>=8.0",
     "pytest-cov>=5.0",

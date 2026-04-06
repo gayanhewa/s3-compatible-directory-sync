@@ -170,6 +170,23 @@ def conflicts(path: str) -> None:
             click.echo(f"  {cf}")
 
 
+@main.command()
+@click.option("--path", default=".", help="Synced directory")
+def menubar(path: str) -> None:
+    """Launch the macOS menu bar app."""
+    try:
+        from s3_folder_sync.menubar import run_menubar
+    except ImportError:
+        click.echo(
+            "Menu bar support requires rumps. Install with:\n"
+            "  pip install 's3-folder-sync[menubar]'",
+            err=True,
+        )
+        sys.exit(1)
+
+    run_menubar(str(Path(path).resolve()))
+
+
 def _load_config(path: str) -> Config:
     try:
         return Config.load(Path(path).resolve())
