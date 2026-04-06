@@ -100,21 +100,28 @@ class BunnyClient:
         return metadata
 
     def head(self, relative_path: str) -> dict[str, Any] | None:
-        url = self._file_url(relative_path)
-        resp = self._session.head(url)
-
-        if resp.status_code == 404:
-            return None
-        resp.raise_for_status()
-
+        # Bunny doesn't support HEAD requests — use sidecar metadata instead
         meta = self._get_sidecar_meta(relative_path)
-        content_length = int(resp.headers.get("Content-Length", 0))
+        if not meta:
+            # Check if the file exists via a range GET (1 byte)
+            url = self._file_url(relative_path)
+            resp = self._session.get(url, headers={"Range": "bytes=0-0"})
+            if resp.status_code in (404,):
+                return None
+            if resp.status_code not in (200, 206):
+                return None
+            return {
+                "etag": "",
+                "last_modified": resp.headers.get("Last-Modified"),
+                "metadata": {},
+                "content_length": int(resp.headers.get("Content-Length", 0)),
+            }
 
         return {
             "etag": meta.get("etag", ""),
-            "last_modified": resp.headers.get("Last-Modified"),
+            "last_modified": meta.get("synced-at"),
             "metadata": meta,
-            "content_length": content_length,
+            "content_length": 0,
         }
 
     def delete(self, relative_path: str) -> None:
